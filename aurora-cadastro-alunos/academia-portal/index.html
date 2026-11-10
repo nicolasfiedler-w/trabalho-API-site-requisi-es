@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#091a2e">
+  <meta name="description" content="Aurora — portal de cadastro e gestão acadêmica de alunos.">
+  <title>Aurora | Gestão acadêmica</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500;1,600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="#inicio" aria-label="Aurora, voltar ao início">
+        <span class="brand-symbol" aria-hidden="true">A<span>.</span></span>
+        <span class="brand-copy">
+          <strong>AURORA</strong>
+          <small>GESTÃO ACADÊMICA</small>
+        </span>
+      </a>
+      <nav class="main-nav" aria-label="Navegação principal">
+        <a href="#visao-geral">Visão geral</a>
+        <a href="#registros">Alunos</a>
+        <a class="nav-cta" href="#cadastro">Novo cadastro <span aria-hidden="true">↗</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero" id="inicio" aria-labelledby="hero-titulo">
+    <div class="shell hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="eyebrow-line"></span> PORTAL DE GESTÃO ESCOLAR</p>
+        <h1 id="hero-titulo">Cada trajetória<br>merece um <em>bom início.</em></h1>
+        <p class="hero-description">Um espaço pensado para organizar o que importa: os alunos, seus cursos e cada etapa da jornada acadêmica.</p>
+        <a class="hero-button" href="#cadastro">Cadastrar aluno <span aria-hidden="true">↗</span></a>
+        <div class="hero-footnote"><span class="tiny-cross" aria-hidden="true">✳</span> Organização com propósito. Educação com futuro.</div>
+      </div>
+      <div class="hero-visual" role="img" aria-label="Biblioteca com estantes de livros, ambiente dedicado ao estudo">
+        <div class="hero-visual-overlay"></div>
+        <div class="image-note"><span>01 / 02</span><span>CONHECIMENTO EM MOVIMENTO</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="overview" id="visao-geral" aria-label="Visão geral do cadastro">
+    <div class="shell overview-grid">
+      <div class="overview-intro">
+        <span class="section-kicker">PAINEL ACADÊMICO</span>
+        <p>Informação clara.<br><em>Gestão inteligente.</em></p>
+      </div>
+      <div class="metric">
+        <span class="metric-label">ALUNOS REGISTRADOS</span>
+        <strong id="totalAlunos">00</strong>
+        <span class="metric-detail">Total de cadastros na API</span>
+      </div>
+      <div class="metric">
+        <span class="metric-label">CURSOS REGISTRADOS</span>
+        <strong id="totalCursos">00</strong>
+        <span class="metric-detail">Cursos diferentes cadastrados</span>
+      </div>
+      <div class="metric metric-api">
+        <span class="metric-label">STATUS DA CONEXÃO</span>
+        <div class="connection"><span id="statusBolinha" class="status-dot"></span><strong id="statusApi">Não configurada</strong></div>
+        <span class="metric-detail">API CrudCrud · Ambiente online</span>
+      </div>
+    </div>
+  </section>
+
+  <main class="shell main-content">
+    <div class="section-heading">
+      <div>
+        <span class="section-kicker">CONTROLE DE REGISTROS</span>
+        <h2>Gestão de <em>alunos.</em></h2>
+      </div>
+      <p>Cadastre, consulte e atualize informações acadêmicas em um único lugar, com conexão direta à API.</p>
+    </div>
+
+    <div class="workspace">
+      <div class="form-column">
+        <section class="form-card" id="cadastro" aria-labelledby="tituloFormulario">
+          <div class="card-topline"><span id="rotuloFormulario">01 / NOVO REGISTRO</span><span class="topline-symbol">✦</span></div>
+          <h3 id="tituloFormulario">Cadastrar aluno</h3>
+          <p class="card-description">Preencha as informações abaixo para incluir um aluno no sistema.</p>
+
+          <form id="formAluno">
+            <div class="field">
+              <label for="nome">Nome completo <span>*</span></label>
+              <input id="nome" name="nome" type="text" placeholder="Ex.: Ana Carolina Silva" maxlength="100" autocomplete="off" required>
+            </div>
+            <div class="field">
+              <label for="curso">Curso <span>*</span></label>
+              <input id="curso" name="curso" type="text" placeholder="Ex.: Informática para Internet" maxlength="90" autocomplete="off" required>
+            </div>
+            <div class="field-grid">
+              <div class="field">
+                <label for="turma">Turma <span>*</span></label>
+                <input id="turma" name="turma" type="text" placeholder="Ex.: 1A" maxlength="30" autocomplete="off" required>
+              </div>
+              <div class="field">
+                <label for="turno">Turno <span>*</span></label>
+                <select id="turno" name="turno" required>
+                  <option value="">Selecione</option>
+                  <option value="Matutino">Matutino</option>
+                  <option value="Vespertino">Vespertino</option>
+                  <option value="Noturno">Noturno</option>
+                  <option value="Integral">Integral</option>
+                </select>
+              </div>
+            </div>
+
+            <div id="avisoForm" class="form-alert" role="status" aria-live="polite" hidden></div>
+            <button type="submit" class="submit-button" id="botaoSalvar">
+              <span id="textoSalvar">Cadastrar aluno</span><span aria-hidden="true">↗</span>
+            </button>
+            <button type="button" class="cancel-button" id="botaoCancelar" hidden>Cancelar edição</button>
+          </form>
+          <div class="form-footer"><span class="footer-spark">✳</span> Os campos marcados com * são obrigatórios.</div>
+        </section>
+        <aside class="editorial-note" aria-label="Nota do portal">
+          <div class="note-image" role="img" aria-label="Livros e materiais de estudo sobre uma mesa"></div>
+          <div class="note-body">
+            <span>UM OLHAR PARA O FUTURO</span>
+            <p>O cuidado com os detalhes também faz parte da educação.</p>
+          </div>
+        </aside>
+      </div>
+
+      <section class="records-card" id="registros" aria-labelledby="tituloRegistros">
+        <div class="records-header">
+          <div>
+            <span class="section-kicker">02 / CONSULTA DE REGISTROS</span>
+            <h3 id="tituloRegistros">Alunos cadastrados</h3>
+            <p>Visualize e gerencie todos os registros da sua turma.</p>
+          </div>
+          <button type="button" class="refresh-button" id="botaoAtualizar" title="Buscar os registros novamente na API">
+            <span aria-hidden="true">↻</span> Atualizar
+          </button>
+        </div>
+
+        <div class="search-bar">
+          <svg width="19" height="19" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg>
+          <label for="busca" class="visually-hidden">Buscar aluno, curso ou turma</label>
+          <input id="busca" type="search" placeholder="Buscar por nome, curso ou turma..." autocomplete="off">
+        </div>
+
+        <p id="avisoLista" class="list-feedback" role="status" aria-live="polite">Configure sua API para carregar os registros.</p>
+        <div class="table-scroll">
+          <table class="students-table">
+            <thead>
+              <tr>
+                <th scope="col">ALUNO</th>
+                <th scope="col">CURSO</th>
+                <th scope="col">TURMA</th>
+                <th scope="col">TURNO</th>
+                <th scope="col">AÇÕES</th>
+              </tr>
+            </thead>
+            <tbody id="corpoTabela"></tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="estadoVazio" hidden>
+          <span aria-hidden="true" class="empty-illustration">✧</span>
+          <h4 id="tituloVazio">Nenhum aluno encontrado</h4>
+          <p id="textoVazio">Os alunos cadastrados aparecerão aqui.</p>
+        </div>
+        <div class="records-footer">
+          <span>CADASTRO ACADÊMICO · AURORA</span>
+          <span id="contadorLista">0 registros</span>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell footer-content">
+      <div><strong>AURORA<span>.</span></strong><small>Educação, organização e futuro.</small></div>
+      <p>Projeto demonstrativo de integração com API REST • HTML, CSS e JavaScript</p>
+      <a href="#inicio">Voltar ao topo ↑</a>
+    </div>
+  </footer>
+</body>
+</html>

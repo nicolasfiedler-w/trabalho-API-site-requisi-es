@@ -1,0 +1,26 @@
+AURORA | GESTÃO ACADÊMICA
+========================
+
+Projeto simples para trabalho de curso com HTML, CSS e JavaScript.
+
+1. Abra https://crudcrud.com/ e copie seu endpoint online.
+2. Abra script.js no VS Code.
+3. Substitua apenas SEU_IDENTIFICADOR no valor de API_BASE pelo ID recebido.
+   Ex.: const API_BASE = "https://crudcrud.com/api/IDENTIFICADOR_COPIADO";
+   Não adicione /alunos: o próprio JavaScript já faz isso.
+4. No VS Code, abra index.html com a extensão Live Server.
+5. Teste cadastrar, listar, editar e excluir alunos fictícios.
+6. Pressione F12 > Network para visualizar os métodos GET, POST, PUT e DELETE.
+
+O site usa a API CrudCrud online, não uma API local. Os arquivos HTML,
+CSS e JS são locais; os dados dos alunos são enviados e consultados na internet.
+
+Observações:
+- O endereço gratuito de teste da CrudCrud pode expirar ou atingir o limite
+  de requisições. Se isso acontecer, gere um novo ID e substitua em script.js.
+- A API demonstrativa não deve receber dados reais ou sigilosos de alunos.
+  Utilize registros fictícios para a apresentação.
+- As fotos e fontes vêm de serviços externos (Unsplash e Google Fonts),
+  portanto dependem da internet. O conteúdo e as funções têm estilos de reserva.
+- PATCH não é suportado pela CrudCrud; por isso, o projeto utiliza os quatro
+  métodos documentados: GET, POST, PUT e DELETE.
