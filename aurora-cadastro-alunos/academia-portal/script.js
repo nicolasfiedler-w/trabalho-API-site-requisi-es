@@ -1,14 +1,14 @@
-// ==============================================================
-// AURORA | Cadastro de alunos com API online CrudCrud
-// 1) Acesse https://crudcrud.com
-// 2) Copie seu endpoint (sem /alunos no final)
-// 3) Substitua SEU_IDENTIFICADOR pelo identificador da sua API.
-// Ex.: https://crudcrud.com/api/abc123... (exemplo ilustrativo)
-// ==============================================================
 
-const API_BASE = "https://crudcrud.com/api/74eef21b483c4a68bc8fd00c3f0ba44b"
+
+// ===================================================================
+// 01. ENDEREÇO DA API
+// ===================================================================
+const API_BASE = "https://crudcrud.com/api/783e98bdf4e942289eecf0e2453270ef";
 const API_URL = `${API_BASE.replace(/\/+$/, "")}/alunos`;
 
+// ===================================================================
+// 02. ELEMENTOS DO HTML
+// ===================================================================
 const form = document.getElementById("formAluno");
 const campoNome = document.getElementById("nome");
 const campoCurso = document.getElementById("curso");
@@ -28,10 +28,16 @@ const botaoAtualizar = document.getElementById("botaoAtualizar");
 const statusApi = document.getElementById("statusApi");
 const statusBolinha = document.getElementById("statusBolinha");
 
+// ===================================================================
+// 03. VARIÁVEIS DE CONTROLE
+// ===================================================================
 let alunos = [];
 let idEmEdicao = null;
 let ocupado = false;
 
+// ===================================================================
+// 04. FUNÇÕES AUXILIARES DA INTERFACE
+// ===================================================================
 function apiConfigurada() {
   return API_BASE.startsWith("https://crudcrud.com/api/")
     && !API_BASE.includes("SEU_")
@@ -56,7 +62,11 @@ function alterarOcupado(valor) {
   botaoSalvar.setAttribute("aria-busy", String(valor));
 }
 
-// Envia uma requisição HTTP REAL para a API na internet.
+// ===================================================================
+// 05. REQUISIÇÕES HTTP - FETCH, ERROS E JSON
+// ===================================================================
+// Todas as operações HTTP passam por aqui.
+// fetch() envia a requisição e o resto da função trata erros e JSON.
 async function requisicao(url, opcoes = {}) {
   let resposta;
 
@@ -83,6 +93,9 @@ async function requisicao(url, opcoes = {}) {
   return conteudo ? JSON.parse(conteudo) : null;
 }
 
+// ===================================================================
+// 06. CONTADORES E FUNÇÕES DE ORGANIZAÇÃO (LISTA DO GET, organizar as informações na tela)
+// ===================================================================
 function atualizarIndicadores() {
   const cursos = new Set(alunos.map(aluno =>
     String(aluno.curso || "").trim().toLocaleLowerCase("pt-BR")
@@ -103,7 +116,11 @@ function criarCelula(texto, classe = "") {
   return celula;
 }
 
-// Desenha somente os dados que vieram da API.
+// ===================================================================
+// 07. EXIBIÇÃO E PESQUISA DOS ALUNOS (exibir os alunos na tabela)
+// ===================================================================
+// Mostra os dados que o GET já recebeu. 
+
 function renderizarAlunos() {
   const termo = normalizar(busca.value.trim());
   const filtrados = alunos.filter(aluno =>
@@ -174,7 +191,10 @@ function renderizarAlunos() {
   });
 }
 
-// GET: busca os alunos cadastrados nos servidores da CrudCrud.
+// ===================================================================
+// 08. CRUD - READ / GET (CONSULTAR)
+// ===================================================================
+// READ / GET: consulta todos os alunos armazenados na CrudCrud online.
 async function listarAlunos() {
   if (!apiConfigurada()) {
     alterarStatus("Não configurada");
@@ -189,7 +209,9 @@ async function listarAlunos() {
   avisoLista.className = "list-feedback";
 
   try {
+    // GET /alunos: solicita os registros ao servidor.
     const dados = await requisicao(API_URL, { method: "GET", cache: "no-store" });
+    // Atualiza os dados temporários e mostra o resultado no HTML.
     alunos = Array.isArray(dados) ? dados : [];
     atualizarIndicadores();
     renderizarAlunos();
@@ -204,6 +226,61 @@ async function listarAlunos() {
   }
 }
 
+// ===================================================================
+// 09. CRUD - CREATE / POST (CADASTRAR)
+// ===================================================================
+// CREATE / POST: cria um aluno NOVO no recurso /alunos.
+async function cadastrarAluno(dadosAluno) {
+  return requisicao(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(dadosAluno)
+  });
+}
+
+// ===================================================================
+// 10. CRUD - UPDATE / PUT (ATUALIZAR)
+// ===================================================================
+// UPDATE / PUT: atualiza um aluno existente no recurso /alunos/ID.
+// A CrudCrud recebe o _id na URL, não no corpo da requisição.
+async function atualizarAluno(id, dadosAluno) {
+  return requisicao(`${API_URL}/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(dadosAluno)
+  });
+}
+
+// ===================================================================
+// 11. CRUD - DELETE (EXCLUIR)
+// ===================================================================
+// DELETE: remove um aluno específico pelo _id informado na URL.
+async function excluirAluno(id) {
+  if (ocupado) return;
+  const aluno = alunos.find(item => item._id === id);
+  if (!aluno) return;
+
+  if (!window.confirm(`Excluir o cadastro de ${aluno.nome}? Esta ação não pode ser desfeita.`)) return;
+
+  alterarOcupado(true);
+  try {
+    // DELETE /alunos/ID
+    await requisicao(`${API_URL}/${id}`, { method: "DELETE" });
+    if (idEmEdicao === id) cancelarEdicao();
+    mensagemFormulario("Aluno excluído com sucesso!", "success");
+    // Novo GET para retirar o aluno excluído da tabela.
+    await listarAlunos();
+  } catch (erro) {
+    mensagemFormulario(erro.message, "error");
+  } finally {
+    alterarOcupado(false);
+  }
+}
+
+// ===================================================================
+// 12. FUNÇÕES DO FORMULÁRIO DE EDIÇÃO (editar um aluno)
+// ===================================================================
+// Volta o formulário ao modo de cadastro.
 function cancelarEdicao() {
   idEmEdicao = null;
   form.reset();
@@ -214,6 +291,8 @@ function cancelarEdicao() {
   mensagemFormulario("");
 }
 
+// Preenche o formulário com os dados existentes.
+// Ainda não envia PUT: o PUT acontece ao clicar em Salvar alterações.
 function editarAluno(id) {
   const aluno = alunos.find(item => item._id === id);
   if (!aluno) return;
@@ -232,7 +311,10 @@ function editarAluno(id) {
   campoNome.focus({ preventScroll: true });
 }
 
-// POST: cadastra. PUT: substitui os dados de um registro existente.
+// ===================================================================
+// 13. EVENTO DO FORMULÁRIO - ESCOLHER POST OU PUT (identificar quando o formulário é enviado)
+// ===================================================================
+// Envio do formulário: decide se deve criar (POST) ou editar (PUT).
 form.addEventListener("submit", async evento => {
   evento.preventDefault();
   if (ocupado) return;
@@ -258,16 +340,16 @@ form.addEventListener("submit", async evento => {
   textoSalvar.textContent = "Salvando...";
 
   try {
-    // O _id não vai no body do PUT: fica apenas no endereço.
-    const url = estavaEditando ? `${API_URL}/${idEmEdicao}` : API_URL;
-    await requisicao(url, {
-      method: estavaEditando ? "PUT" : "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(dadosAluno)
-    });
+    // Se existe idEmEdicao, edita via PUT; caso contrário, cadastra via POST.
+    if (estavaEditando) {
+      await atualizarAluno(idEmEdicao, dadosAluno); // UPDATE / PUT
+    } else {
+      await cadastrarAluno(dadosAluno);            // CREATE / POST
+    }
 
     cancelarEdicao();
     mensagemFormulario(estavaEditando ? "Aluno atualizado com sucesso!" : "Aluno cadastrado com sucesso!", "success");
+    // Faz GET novamente para mostrar os dados atualizados na tabela.
     await listarAlunos();
   } catch (erro) {
     mensagemFormulario(erro.message, "error");
@@ -277,28 +359,10 @@ form.addEventListener("submit", async evento => {
   }
 });
 
-// DELETE: remove um aluno da API pelo _id.
-async function excluirAluno(id) {
-  if (ocupado) return;
-  const aluno = alunos.find(item => item._id === id);
-  if (!aluno) return;
-
-  if (!window.confirm(`Excluir o cadastro de ${aluno.nome}? Esta ação não pode ser desfeita.`)) return;
-
-  alterarOcupado(true);
-  try {
-    await requisicao(`${API_URL}/${id}`, { method: "DELETE" });
-    if (idEmEdicao === id) cancelarEdicao();
-    mensagemFormulario("Aluno excluído com sucesso!", "success");
-    await listarAlunos();
-  } catch (erro) {
-    mensagemFormulario(erro.message, "error");
-  } finally {
-    alterarOcupado(false);
-  }
-}
-
-// Clique nos botões das linhas da tabela.
+// ===================================================================
+// 14. EVENTOS DOS BOTÕES E INICIALIZAÇÃO (identificar as interações do usuário)
+// ===================================================================
+// Quando o usuário clica em Editar ou Excluir na tabela.
 tabela.addEventListener("click", evento => {
   const botao = evento.target.closest("button[data-acao]");
   if (!botao || ocupado) return;
@@ -308,7 +372,10 @@ tabela.addEventListener("click", evento => {
 
 busca.addEventListener("input", renderizarAlunos);
 botaoCancelar.addEventListener("click", cancelarEdicao);
+// Atualizar faz uma nova consulta GET.
 botaoAtualizar.addEventListener("click", listarAlunos);
 
-// A primeira consulta acontece automaticamente ao abrir a página.
+
 listarAlunos();
+
+// https://crudcrud.com/api/783e98bdf4e942289eecf0e2453270ef/alunos?utm_source
